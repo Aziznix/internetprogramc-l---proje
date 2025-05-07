@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    color: #333;
+    
+
+}
+
+nav {
+    background-color: lightskyblue;
+    color: white;
+    padding: 15px 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav .logo img {
+    height: 50px;
+}
+
+ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+li a {
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    padding: 5px 10px;
+}
+
+li a:hover {
+    background-color: lightgoldenrodyellow;
+    border-radius: 5px;
+    color:lightskyblue;
+}
+
+main {
+    padding: 40px;
+    text-align: center;
+}
+
+.accordion {
+    margin-top: 30px;
+    background-color: #87cefa;
+    color: yellow;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    transition: 0.4s;
+    font-weight: bold;
+    font-size: x-large;
+  }
+
+.otopark-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.skill{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 30px;
+    color: #ffffff;
+}
+.skill span{
+    font-size: 30px;
+}
+  
+  .active, .accordion:hover {
+    background-color: lightgoldenrodyellow;
+    color:  lightskyblue;
+  }
+  
+  .panel {
+    display: none;
+    flex-direction: row; /* Yatay hizalama */
+    justify-content: flex-start; /* Sol tarafa hizalama */
+    align-items: flex-start; /* Dikeyde hizalama */
+    flex-wrap: nowrap; /* Alta kaymayı engelle */
+    padding: 20px;
+    gap: 20px; /* Rezerv ve otopark arasında boşluk */
+    width: 100%;
+    background-color: #f9f9f9;
+}
+
+
+.accordion.active + .panel {
+    max-height: 1000px; /* İçeriğin sığacağı kadar geniş bir değer */
+    display: flex;
+    flex-direction: row;
+}
+.park-info {
+    display: flex; /* Flexbox kullanımı */
+    flex-direction: column; /* Dikey düzenleme */
+    gap: 10px; /* Her bir öğe arasında boşluk */
+}
+
+.park-info h6 {
+    margin: 0; /* Varsayılan boşlukları kaldır */
+    font-size: 14px; /* Yazı boyutunu ayarla */
+}
+.rezerv {
+    flex: 0 0 250px; /* Genişliği sabit tut */
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px;
+    border-right: 1px solid rgba(51, 51, 51, 0.1);
+    position: sticky; /* Sabit konum için */
+    top: 0;
+}
+
+
+.rezerv button{
+    margin-top: 5px;
+    padding: 5px 30px 5px 30px ;
+    border: 0px;
+    background-color: lightskyblue;
+    color: lightgoldenrodyellow;
+    font-weight: bold;
+    font-size: 24px;
+    border-radius: 5px;
+}
+
+.rezerv input{
+    padding: 5px;
+}
+
+.rezerv h4{
+    color: lightskyblue;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.rezerv button:hover{
+    background-color: lightgoldenrodyellow;
+    color: lightskyblue;
+}
+
+
+
+.inf{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+  .otopark {
+    flex: 1; 
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    grid-template-columns: repeat(6, 1fr);
+    grid-gap: 10px;
+    max-width: 800px;
+    width: 80%;
+    gap: 40px;
+    justify-content: flex-start;
+  }
+
+  .row {
+    display: flex;
+    gap: 3px;
+  }
+
+  .park-yeri {
+    width: 50px;
+    height: 50px;
+    background-color: transparent;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+    padding-top: 10px;
+    color: rgb(194, 195, 196, 0.5);
+    font-weight: bold;
+    
+  }
+
+  .park-yeri.bos.üst {
+    border-top: 2px solid #4CAF50;
+    border-left: 2px solid #4CAF50;
+    border-right: 2px solid #4CAF50;
+}
+.park-yeri.bos.alt {
+    border-bottom: 2px solid #4CAF50;
+    border-left: 2px solid #4CAF50;
+    border-right: 2px solid #4CAF50;
+}
+.park-yeri.dolu.üst {
+  border-top: 2px solid #F44336;
+  border-left: 2px solid #F44336;
+  border-right: 2px solid #F44336;
+}
+.park-yeri.dolu.alt {
+  border-bottom: 2px solid #F44336;
+  border-left: 2px solid #F44336;
+  border-right: 2px solid #F44336;
+}
+.park-yeri.rezerve.üst {
+  border-top: 2px solid #FFEB3B;
+  border-left: 2px solid #FFEB3B;
+  border-right: 2px solid #FFEB3B;
+}
+.park-yeri.rezerve.alt {
+  border-bottom: 2px solid #FFEB3B;
+  border-left: 2px solid #FFEB3B;
+  border-right: 2px solid #FFEB3B;
+}
+
+ .bos {
+    border-color: #4CAF50;
+  }
+
+  .rezerve {
+    border-color: #FFEB3B; 
+  }
+
+ .dolu {
+    border-color: #F44336;
+  }
+
+  footer{
+    display: flex;
+    background-color: lightskyblue;
+    height: 150px;
+    position:fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    align-items: center;
+  }
+
+  footer .logo img{
+    height: 50px;
+  }
+
+  .footer-info{
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+  }
+
+
+  .rezervasyon{
+    align-items: center;
+    justify-items: center;
+    padding: 50px;
+    background-color: #f9f9f9;
+    margin-top: 100px;
+    width:500px;
+    height:300px;
+    margin-left: 35%;
+    border-radius: 20px;
+
+
+  }
+
+  .rezervasyon-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.rezervasyon-btn:hover {
+    background-color: #45a049;
+}
+
