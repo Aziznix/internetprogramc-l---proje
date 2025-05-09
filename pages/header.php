@@ -15,7 +15,7 @@
     <div class="menu">
         <ul>
             <li><a href="index.php">Otoparklar</a></li>
-            <li><a href="fastpay.php">Hızlı Ödeme</a></li>
+            <li><a href="pages/fastpay.php">Hızlı Ödeme</a></li>
             <?php if (isset($_SESSION['kullanici_adi'])): ?>
                 <li><a href="pages/paymaount.php">Rezervasyon</a></li>
                 <li><a href="pages/profil.php">Profil</a></li>

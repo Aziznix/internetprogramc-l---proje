@@ -63,7 +63,7 @@ else{
             border-radius: 5px;
             background-color: #dcdcdc;
             height: 11vh;
-            width: 72vh;
+            width: 93vh;
         }
         .HizliOdemeSorgu h1{
             margin-top: -50px;
@@ -168,7 +168,13 @@ else{
                         <td><?php echo $veriler['park']['tarih']; ?></td>
                         <td><?php echo $day; ?></td>
                     </tr>
-                    <?php }?>
+                    <?php 
+                    $arac_plaka = $veriler['park']['arac_plaka'];
+                    $sure = strtotime($time) - strtotime($veriler['park']['saat']);
+                    $park_yeri = $veriler['park']['park_id'];
+                    $musteri_id = $veriler['user']['id'];
+                    $odemetarih = $day;
+                }?>
                     </tbody>
                 </table>
                 </div>
@@ -176,36 +182,58 @@ else{
                 <h2 style="margin-top:10px">Toplam Tutar: <?php echo $toplam?>TL<h2>
         </div>
     </div>
+    <script>
+  const musteri_id = <?= json_encode($musteri_id ?? "") ?>;
+  const toplam = <?= json_encode($toplam ?? "") ?>;
+  const park_yeri = <?= json_encode($park_yeri ?? "") ?>;
+  const arac_plaka = <?= json_encode($arac_plaka ?? "") ?>;
+  const sure = <?= json_encode($sure ?? "") ?>;
+  const odemetarih = <?= json_encode($odemetarih ?? "") ?>;
+</script>
+
 
     <div class="HizliOdemeOdeme">
-    <form style="max-width: 300px; max-height:280px">
+    <form style="max-width: 300px; max-height:280px" id="odemeform">
   <label>Kredi Kart Numarası</label><br>
-  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"> 
-  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"> 
-  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"> 
-  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"><br>
+  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"required> 
+  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"required> 
+  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"required> 
+  <input type="text" maxlength="4" style="width: 60px; border: 2px solid skyblue;"required><br>
 
 
   <br><br>
   <label>Son Kullanım Tarihi</label><br>
-  <select>
+  <select required>
     <option>Ay</option>
     <option>01</option>
     <option>02</option>
     <option>03</option>
-    <!-- ... -->
+    <option>04</option>
+    <option>05</option>
+    <option>06</option>
+    <option>07</option>
+    <option>08</option>
+    <option>09</option>
+    <option>10</option>
+    <option>11</option>
+    <option>12</option>
   </select>
   <select>
     <option>Yıl</option>
     <option>2025</option>
     <option>2026</option>
     <option>2027</option>
-    <!-- ... -->
+    <option>2028</option>
+    <option>2029</option>
+    <option>2030</option>
+    <option>2031</option>
+    <option>2032</option>
+    <option>2033</option>
   </select>
 
   <br><br>
   <label>Kart Güvenlik Numarası</label><br>
-  <input type="text" maxlength="4" style="width: 100px;"><br><br>
+  <input type="text" maxlength="3" style="width: 100px;" required><br><br>
 
   <button type="submit">Ödeme Yap</button>
 </form>
@@ -235,6 +263,37 @@ else{
     document.getElementById('hidden-form').submit();
 });
 });
+document.getElementById("odemeform").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const veriler = [
+  {
+    id: musteri_id,
+    tutar: toplam,
+    parkyeri: park_yeri,
+    aracplaka: arac_plaka,
+    sure: sure,
+    tarih: odemetarih
+  }
+];
+
+  fetch("odeme.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ veriler: veriler })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.status === "success"){
+        window.location.href = "../pages/thankyou.php";
+    }
+    else{
+        alert("Hata" + (data.error || "İşlem başarisiz"));
+    }
+  });
+});
+
 </script>
 
 </body>
