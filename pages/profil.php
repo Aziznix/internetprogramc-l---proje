@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Veritabanında güncelleme yapmasını sağlar.
     $updateQuery = $pdo->prepare("
         UPDATE users 
-        SET nameandsurname = :nameandsurname, email = :email, birthday = :birthday, phone = :phone, numberplate = :numberplate
+        SET name = :name, surname = :surname, email = :email, birthday = :birthday, phone = :phone, numberplate = :numberplate
         WHERE id = :id
     ");
     $updateQuery->execute([
