@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="menu">
         <ul>
             <li><a href="index.php">Otoparklar</a></li>
-            <li><a href="fastpay.php">Hızlı Ödeme</a></li>
+            <li><a href="pages/fastpay.php">Hızlı Ödeme</a></li>
             <?php if (isset($_SESSION['kullanici_adi'])): ?>
                 <li><a href="pages/paymaount.php">Rezervasyon</a></li>
                 <li><a href="pages/profil.php">Profil</a></li>
@@ -148,8 +148,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <form id="profileForm">
                                 <div class="form-group">
-                                    <label>Ad Soyad</label>
-                                    <input type="text" name="nameandsurname" class="form-control" value="<?= htmlspecialchars($user['nameandsurname']); ?>">
+                                    <label>Ad</label>
+                                    <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($user['name']); ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label>Soyad</label>
+                                    <input type="text" name="surname" class="form-control" value="<?= htmlspecialchars($user['surname']); ?>">
                                 </div>
                                 <div class="form-group">
                                     <label>Email</label>
