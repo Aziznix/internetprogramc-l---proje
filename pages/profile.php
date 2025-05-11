@@ -12,4 +12,3 @@ $kullanici_adi = $_SESSION['kullanici_adi'];
 
 echo "<h1>Hoşgeldiniz, $kullanici_adi!</h1>";
 echo '<a href="exit.php" class="btn btn-danger">Çıkış Yap</a>';
-?>

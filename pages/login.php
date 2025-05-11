@@ -42,43 +42,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giriş Yap</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
 
-<div class="container p-5">
-    <div class="card p-5">
-        <h2 class="text-center mb-4">Giriş Yap</h2>
+    <div class="container p-5">
+        <div class="card p-5">
+            <h2 class="text-center mb-4">Giriş Yap</h2>
 
-        <?php
-        // Hata mesajını göster
-        if ($error_message != "") {
-            echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>';
-        }
-        ?>
+            <?php
+            // Hata mesajını göster
+            if ($error_message != "") {
+                echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>';
+            }
+            ?>
 
-        <form action="login.php" method="POST">
-            <div class="mb-3">
-                <label for="kullanici_adi" class="form-label">Kullanıcı Adı</label>
-                <input type="text" class="form-control" id="kullanici_adi" name="kullanici_adi" required>
-            </div>
-            <div class="mb-3">
-                <label for="parola" class="form-label">Şifre</label>
-                <input type="password" class="form-control" id="parola" name="parola" required>
-            </div>
-            <button type="submit" name="giris" class="btn btn-primary">Giriş Yap</button>
-        </form>
+            <form action="login.php" method="POST">
+                <div class="mb-3">
+                    <label for="kullanici_adi" class="form-label">Kullanıcı Adı</label>
+                    <input type="text" class="form-control" id="kullanici_adi" name="kullanici_adi" required>
+                </div>
+                <div class="mb-3">
+                    <label for="parola" class="form-label">Şifre</label>
+                    <input type="password" class="form-control" id="parola" name="parola" required>
+                </div>
+                <button type="submit" name="giris" class="btn btn-primary">Giriş Yap</button>
+            </form>
 
-        <hr>
-        <p class="text-center">Hesabınız yok mu? <a href="register.php">Kayıt Olun</a></p>
+            <hr>
+            <p class="text-center">Hesabınız yok mu? <a href="register.php">Kayıt Olun</a></p>
+        </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>
