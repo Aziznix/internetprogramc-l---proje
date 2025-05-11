@@ -127,6 +127,7 @@ $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
             <tr>
                 <th>ID</th>
                 <th>Ad </th>
+                <th>Soyad</th>
                 <th>Email</th>
                 <th>Telefon</th>
                 <th>Doğum Tarihi</th>
@@ -138,6 +139,7 @@ $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
             tableContent += `<tr>
                 <td>${user.id}</td>
                 <td>${user.name}</td>
+                <td>${user.surname}</td>
                 <td>${user.email}</td>
                 <td>${user.phone}</td>
                 <td>${user.birthday}</td>

@@ -2,11 +2,11 @@
 include('config.php');
 session_start();
 
-// AJAX ile park yerlerini getiren PHP kısmı
+
 if (isset($_POST['otopark_adi'])) {
     $otopark_adi = $_POST['otopark_adi'];
 
-    // Otopark ID'sini alıyoruz
+  
     $sql = "SELECT otopark_id FROM otopark WHERE `otopark-adi` = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $otopark_adi);
@@ -15,7 +15,7 @@ if (isset($_POST['otopark_adi'])) {
     $otopark = $result->fetch_assoc();
 
     if ($otopark) {
-        // Seçilen otopark id'sine bağlı park yerlerini getiriyoruz
+        
         $otopark_id = $otopark['otopark_id'];
         $yer_sql = "SELECT * FROM park_yerleri WHERE otopark_id = ?";
         $stmt = $conn->prepare($yer_sql);
@@ -23,7 +23,6 @@ if (isset($_POST['otopark_adi'])) {
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // Park yerlerini JSON formatında döndürüyoruz
         $yerler = [];
         while ($row = $result->fetch_assoc()) {
             $yerler[] = $row;
@@ -32,7 +31,7 @@ if (isset($_POST['otopark_adi'])) {
     } else {
         echo json_encode([]);
     }
-    exit; // PHP scripti sonlandırıyoruz
+    exit; 
 }
 ?>
 
@@ -52,20 +51,15 @@ if (isset($_POST['otopark_adi'])) {
     </div>
     <div class="menu">
         <ul>
-            <?php if (isset($_SESSION['yetki']) && $_SESSION['yetki'] == 1): ?>
-                <li><a href="pages/admin.php">Admin Panel</a></li>
-            <?php endif; ?>
-                <li><a href="index.php">Otoparklar</a></li>
-                <li><a href="pages/fastpay.php">Hızlı Ödeme</a></li>
+            <li><a href="../index.php">Otoparklar</a></li>
+            <li><a href="../pages/fastpay.php">Hızlı Ödeme</a></li>
             <?php if (isset($_SESSION['kullanici_adi'])): ?>
-                <li><a href="pages/paymaount.php">Rezervasyon</a></li>
-                <li><a href="pages/profil.php">Profil</a></li>
-                <li><a href="pages/exit.php">Çıkış Yap</a></li>
+                <li><a href="../pages/paymaount.php">Rezervasyon</a></li>
+                <li><a href="../pages/profil.php">Profil</a></li>
+                <li><a href="../pages/exit.php">Çıkış Yap</a></li>
             <?php else: ?>
-                <li><a href="pages/login.php">Giriş Yap</a></li>
+                <li><a href="../pages/login.php">Giriş Yap</a></li>
             <?php endif; ?>
-     
-
         </ul>
     </div>
 </nav>
@@ -79,7 +73,7 @@ if (isset($_POST['otopark_adi'])) {
         <form method="POST" action="rezerv.php" class="secim" style="justify-items: center; align-items: center;">
             <select name="otopark" id="otopark" style="border:none; margin-right:100px; margin-bottom:20px; margin-left: 20%">
                 <?php 
-                // Otoparkları çekiyoruz
+                
                 $sql = 'SELECT * FROM otopark';
                 $result = $conn->query($sql);
 
@@ -96,6 +90,12 @@ if (isset($_POST['otopark_adi'])) {
             <select name="yer" id="yer" style="border:none; margin-right:100px; margin-bottom:20px; margin-left: 20%">
                 <option value="">Önce otopark seçin</option>
             </select>
+            <input type="text" name="plaka" placeholder="Plaka Giriniz" required 
+           style=" margin-bottom: 20px; margin-left: 20%; border: none; border-radius: 5px;"><br>
+
+    <input type="time" name="saat" required 
+           style=" margin-bottom: 50px; margin-left: 20%; border: none; border-radius: 5px;"><br>
+
 
             <button type="submit" class="btn btn-primary" style="padding:20px; background-color: lightskyblue; border:none; border-radius:10px; margin-left:30%">Rezervasyon Yap</button>
         </form>
@@ -103,20 +103,20 @@ if (isset($_POST['otopark_adi'])) {
 </div>
 
 <script>
-// Otopark seçildiğinde park yerlerini dinamik olarak yüklemek için JavaScript
+
 document.getElementById('otopark').addEventListener('change', function() {
     var otoparkAdi = this.value;
     
     if (otoparkAdi) {
-        // AJAX ile park yerlerini getiriyoruz
+       
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '', true);  // PHP dosyasını aynı sayfada çalıştırıyoruz
+        xhr.open('POST', '', true);  
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 var yerler = JSON.parse(xhr.responseText);
                 
-                // Yerler select kutusunu temizle
+               
                 var yerSelect = document.getElementById('yer');
                 yerSelect.innerHTML = '<option value="">Yer seçin</option>';
                 
