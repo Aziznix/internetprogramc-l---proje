@@ -1,4 +1,5 @@
 <?php
+      session_start();
 // Bağlantı dosyasını dahil et
 include('config.php');
 
@@ -18,10 +19,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (mysqli_num_rows($sonuc) > 0) {
             $row = mysqli_fetch_assoc($sonuc);
-
+            $_SESSION["yetki"] = $row["yetki"];
             // Şifreyi düz metin olarak karşılaştır (hashing kullanılmıyor)
             if ($sifre == $row["parola"]) {
-                session_start();
+          
                 $_SESSION["kullanici_adi"] = $kullanici_adi;
                 header("Location: ../index.php"); // Başarılı giriş sonrası ana sayfaya yönlendir
                 exit();

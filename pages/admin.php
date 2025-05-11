@@ -21,14 +21,15 @@ $result_pay = mysqli_query($conn, $query_pay);
 $users_data = mysqli_fetch_all($result_users, MYSQLI_ASSOC);
 $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
 ?>
-
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Paneli</title>
-    <link rel="stylesheet" href="../assest/style.css">
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assest/style.css" rel="stylesheet">
     <style>
         /* Admin paneline özel stiller */
         .admin-container {
@@ -76,9 +77,31 @@ $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
         }
     </style>
 </head>
-<body>
+<nav>
+    <div class="logo">
+        <a href="../index.php"><img src="../images/logo.png" alt="Logo" /></a>
+    </div>
+    <div class="menu">
+        <ul>
+            <?php if (isset($_SESSION['yetki']) && $_SESSION['yetki'] == 1): ?>
+                <li><a href="../pages/admin.php">Admin Panel</a></li>
+            <?php endif; ?>
+                <li><a href="../index.php">Otoparklar</a></li>
+                <li><a href="fastpay.php">Hızlı Ödeme</a></li>
+            <?php if (isset($_SESSION['kullanici_adi'])): ?>
+                <li><a href="paymaount.php">Rezervasyon</a></li>
+                <li><a href="profil.php">Profil</a></li>
+                <li><a href="exit.php">Çıkış Yap</a></li>
+            <?php else: ?>
+                <li><a href="login.php">Giriş Yap</a></li>
+            <?php endif; ?>
+     
 
-<?php include('header.php'); ?> <!-- Üst header'ı dahil ediyoruz -->
+        </ul>
+    </div>
+</nav>
+
+
 
 <div class="admin-container">
     <!-- Sol Panel -->
@@ -103,7 +126,7 @@ $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
         let tableContent = `<table>
             <tr>
                 <th>ID</th>
-                <th>Ad Soyad</th>
+                <th>Ad </th>
                 <th>Email</th>
                 <th>Telefon</th>
                 <th>Doğum Tarihi</th>

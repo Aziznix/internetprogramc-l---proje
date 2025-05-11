@@ -14,15 +14,21 @@
     </div>
     <div class="menu">
         <ul>
-            <li><a href="index.php">Otoparklar</a></li>
-            <li><a href="pages/fastpay.php">Hızlı Ödeme</a></li>
+            <?php if (isset($_SESSION['yetki']) && $_SESSION['yetki'] == 1): ?>
+                <li><a href="pages/admin.php">Admin Panel</a></li>
+            <?php endif; ?>
+                <li><a href="index.php">Otoparklar</a></li>
+                <li><a href="pages/fastpay.php">Hızlı Ödeme</a></li>
             <?php if (isset($_SESSION['kullanici_adi'])): ?>
                 <li><a href="pages/paymaount.php">Rezervasyon</a></li>
                 <li><a href="pages/profil.php">Profil</a></li>
                 <li><a href="pages/exit.php">Çıkış Yap</a></li>
             <?php else: ?>
-            <li><a href="pages/login.php">Giriş Yap</a></li>
+                <li><a href="pages/login.php">Giriş Yap</a></li>
             <?php endif; ?>
+     
+
         </ul>
     </div>
 </nav>
+
