@@ -1,10 +1,10 @@
 <?php
-
 session_start();
 if (!isset($_SESSION['kullanici_adi'])) {
     header("Location: ../index.php");
     exit();
 }
+
 $host = 'localhost';
 $dbname = 'iguotopark';
 $username = 'root';
@@ -17,201 +17,341 @@ try {
     die("Veritabanı bağlantı hatası: " . $e->getMessage());
 }
 
-// Kullanıcı bilgilerini çekiyor.
-$userId = 1;
+$userId = $_SESSION["id"]; // Kullanıcı ID'si burada sabit bir değer olarak alınmıştır, bu değeri dinamik hale getirebilirsin.
 $query = $pdo->prepare("SELECT * FROM users WHERE id = :id");
 $query->execute(['id' => $userId]);
 $user = $query->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
-    $user = [
-        'name' => '',
-        'surname' => '',
-        'email' => '',
-        'birthday' => '',
-        'phone' => '',
-        'numberplate' => ''
-    ];
+    $stmt = $pdo->prepare("INSERT INTO users (id) VALUES (:id)");
+    if ($stmt->execute(['id' => $userId])) {
+        echo "<script>console.log('Profil oluşturuldu'); location.reload();</script>";
+    }
+
+
+    
 }
 
-// Form gönderimi kontrolü sağlıyor.
+// Profil güncelleme işlemi
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'] ?? '';
-    $surname = $_POST['surname'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $birthday = $_POST['birthday'] ?? '';
-    $phone = $_POST['phone'] ?? '';
-    $numberplate = $_POST['numberplate'] ?? '';
+    $name = $_POST['name'];
+    $surname = $_POST['surname'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $numberplate = $_POST['numberplate'];
+    $birthday = $_POST['birthday'];
 
-    // Veritabanında güncelleme yapmasını sağlar.
-    $updateQuery = $pdo->prepare("
-        UPDATE users 
-        SET name = :name, surname = :surname, email = :email, birthday = :birthday, phone = :phone, numberplate = :numberplate
-        WHERE id = :id
-    ");
+    $updateQuery = $pdo->prepare("UPDATE users SET name = :name, surname = :surname, email = :email, phone = :phone, numberplate = :numberplate, birthday = :birthday WHERE id = :id");
     $updateQuery->execute([
         'name' => $name,
         'surname' => $surname,
         'email' => $email,
-        'birthday' => $birthday,
         'phone' => $phone,
         'numberplate' => $numberplate,
+        'birthday' => $birthday,
         'id' => $userId
     ]);
 
-    echo json_encode(["success" => true, "message" => "Değişiklikler başarıyla kaydedildi."]);
-    exit; // Sayfa yenilenmesini önler.
+    // Sayfayı yeniden yükle
+    header("Location: profil.php");
+    exit();
 }
+
+// İşlem geçmişini çekme
+$payQuery = $pdo->prepare("SELECT * FROM otopark_pay WHERE musteri_id = :musteri_id");
+$payQuery->execute(['musteri_id' => $userId]);
+$pays = $payQuery->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Panel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../assest/style.css" rel="stylesheet">
+    <title>Profil Sayfası</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
-            background-color: #eef2f3;
-            color: #333;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .profile-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: lightblue;
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar img {
+            width: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+        .sidebar h4 {
+            margin-bottom: 30px;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+            font-weight: 500;
+            padding-bottom: 5px;
+            position: relative;
+        }
+        .sidebar a.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 100%;
+            background-color: white;
+        }
+        .sidebar a:hover {
+            text-decoration: none;
         }
 
-        .card {
-            border-radius: 15px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        .content {
+            flex: 1;
+            padding: 40px;
+            background-color: #f0f0f0;
+        }
+
+        .about-section {
             background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .card-header {
-            background-color: #007bff;
-            color: #fff;
+        .about-section h3 {
+            margin-bottom: 25px;
+            color: #34495e;
         }
 
-        .btn-primary {
-            background-color: #28a745;
-            border-color: #28a745;
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e1e8f0;
+            padding: 10px 0;
         }
 
-        .btn-primary:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
+        .info-row strong {
+            width: 30%;
+            color: #2c3e50;
         }
 
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid #ced4da;
+        .info-row span {
+            width: 65%;
+            text-align: right;
+            color: #555;
         }
 
-        .alert-success {
-            display: none;
-            background-color: #d4edda;
-            color: #155724;
+        .form-group label {
+            font-weight: bold;
+        }
+
+        #araclarim .about-section {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        #araclarim h4 {
+            color: #2c3e50;
+        }
+
+        #araclarim p {
+            color: #555;
+            font-size: 16px;
         }
     </style>
 </head>
-<nav>
-    <div class="logo">
-        <a href="../index.php"><img src="../images/logo.png" alt="Logo" /></a>
-    </div>
-    <div class="menu">
-        <ul>
-            <li><a href="index.php">Otoparklar</a></li>
-            <li><a href="pages/fastpay.php">Hızlı Ödeme</a></li>
-            <?php if (isset($_SESSION['kullanici_adi'])): ?>
-                <li><a href="pages/paymaount.php">Rezervasyon</a></li>
-                <li><a href="pages/profil.php">Profil</a></li>
-                <li><a href="pages/exit.php">Çıkış Yap</a></li>
-            <?php else: ?>
-                <li><a href="pages/login.php">Giriş Yap</a></li>
-            <?php endif; ?>
-        </ul>
-    </div>
-</nav>
-
 <body>
-    <div style="display: flex; flex-direction:row;">
 
-        <div class="container mt-5">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header text-center">
-                            <h4>Profile Panel</h4>
-                        </div>
-                        <div class="card-body">
-                            <div id="successMessage" class="alert alert-success">
-                                Değişiklikler başarıyla kaydedildi.
-                            </div>
+<!-- Buraya header.php gelecek. -->
 
-                            <form id="profileForm">
-                                <div class="form-group">
-                                    <label>Ad</label>
-                                    <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($user['name']); ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Soyad</label>
-                                    <input type="text" name="surname" class="form-control" value="<?= htmlspecialchars($user['surname']); ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Email</label>
-                                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']); ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Doğum Günü</label>
-                                    <input type="date" name="birthday" class="form-control" value="<?= htmlspecialchars($user['birthday']); ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Telefon Numarası</label>
-                                    <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone']); ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Araç Plakası</label>
-                                    <input type="text" name="numberplate" class="form-control" value="<?= htmlspecialchars($user['numberplate']); ?>">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block">Değişiklikleri Kaydet</button>
-                            </form>
-                        </div>
+<div class="profile-container">
+    <div class="sidebar">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Avatar">
+        <h4><?= htmlspecialchars($user['name']) . " " . htmlspecialchars($user['surname']) ?></h4>
+        <a href="#" class="active" onclick="showSection('bilgilerim', event)">Bilgilerim</a>
+        <a href="#" onclick="showSection('araclarim', event)">Araçlarım</a>
+        <a href="#" onclick="showSection('gecmis', event)">İşlem Geçmişi</a>
+        <a href="#" onclick="showSection('guncelle', event)">Bilgilerimi Güncelle</a>
+        <a href="../index.php">Anasayfa</a>
+    </div>
+
+    <div class="content">
+        <div id="bilgilerim" class="about-section">
+    <h3>Bilgilerim</h3>
+    <div class="info-row">
+        <strong>Ad</strong>
+        <span><?= htmlspecialchars($user['name']) ?></span>
+    </div>
+    <div class="info-row">
+        <strong>Soyad</strong>
+        <span><?= htmlspecialchars($user['surname']) ?></span>
+    </div>
+    <div class="info-row">
+        <strong>Email</strong>
+        <span><?= htmlspecialchars($user['email']) ?></span>
+    </div>
+    <div class="info-row">
+        <strong>Telefon</strong>
+        <span><?= htmlspecialchars($user['phone']) ?></span>
+    </div>
+    <!-- Plaka bilgisini kaldırdık -->
+    <div class="info-row">
+        <strong>Doğum Tarihi</strong>
+        <span><?= htmlspecialchars($user['birthday']) ?></span>
+    </div>
+    </div>
+        <div class="modal fade" id="aracEkleModal" tabindex="-1" aria-labelledby="aracEkleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aracEkleModalLabel">Araç Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form action="aracekle.php" method="POST">
+                    <div class="form-group mb-3">
+                        <label for="name">Araç Plakası</label>
+                        <input type="text" class="form-control" id="plaka" name="plaka" required>
                     </div>
+                    <div class="modal-footer px-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </div>
+                    </form>
+                </div>
+
                 </div>
             </div>
         </div>
-        <div>
-            <h1>profildetay</h1>
+
+        <div id="araclarim" class="about-section" style="display: none;">
+            <div style="display: flex;flex-direction:row;justify-content:space-between">
+            <h3>Araçlarım</h3>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aracEkleModal" style="background-color: orange; border:1px solid #ccc; width:150px;">Araç Ekle</button>
+            </div>
+            <div id="carInfo" class="about-section">
+                <table class="table table-bordered"> 
+                    <thead>
+                        <tr>
+                            <th>Araç No</th>
+                            <th>Plaka</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       <?php
+                        $numberplates = explode(',', $user['numberplate']); 
+                        $count = 1;
+
+                        foreach ($numberplates as $plaka) {
+                            $plaka = trim($plaka); 
+                            if (!empty($plaka)) {
+                                echo "<tr>";
+                                echo "<td>" . $count++ . "</td>";
+                                echo "<td>" . htmlspecialchars($plaka) . "</td>";
+                                echo "</tr>";
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="gecmis" class="about-section" style="display: none;">
+            <h3>İşlem Geçmişi</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Fatura ID</th>
+                        <th>Araç Plakası</th>
+                        <th>Park Yeri</th>
+                        <th>Süre</th>
+                        <th>Tutar</th>
+                        <th>Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pays as $pay): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($pay['fatura_id']) ?></td>
+                            <td><?= htmlspecialchars($pay['arac_plaka']) ?></td>
+                            <td><?= htmlspecialchars($pay['park_yeri']) ?></td>
+                            <td><?= number_format((float)$pay['sure'], 2) ?> Saat</td>
+                            <td><?= htmlspecialchars($pay['tutar']) ?> TL</td>
+                            <td><?= htmlspecialchars($pay['tarih']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bilgilerimi Güncelle Formu -->
+        <div id="guncelle" class="about-section" style="display: none;">
+            <h3>Bilgilerimi Güncelle</h3>
+            <form action="profil.php" method="POST">
+                <div class="form-group">
+                    <label for="name">Ad</label>
+                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="surname">Soyad</label>
+                    <input type="text" class="form-control" id="surname" name="surname" value="<?= htmlspecialchars($user['surname']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Telefon</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="<?= htmlspecialchars($user['phone']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="numberplate">Plaka</label>
+                    <input type="text" class="form-control" id="numberplate" name="numberplate" value="<?= htmlspecialchars($user['numberplate']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="birthday">Doğum Tarihi</label>
+                    <input type="date" class="form-control" id="birthday" name="birthday" value="<?= htmlspecialchars($user['birthday']) ?>" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Güncelle</button>
+            </form>
         </div>
     </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    
+    function showSection(id, event) {
+        event.preventDefault();
+        document.getElementById('bilgilerim').style.display = 'none';
+        document.getElementById('araclarim').style.display = 'none';
+        document.getElementById('gecmis').style.display = 'none';
+        document.getElementById('guncelle').style.display = 'none';
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#profileForm').on('submit', function(e) {
-                e.preventDefault(); // Sayfa yenilemesini engeller
+        document.getElementById(id).style.display = 'block';
 
+        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+</script>
 
-                $.ajax({
-                    url: '', // Aynı dosya üzerinden işlem yapmaya yarıyor.
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        const result = JSON.parse(response);
-                        if (result.success) {
-                            $('#successMessage').text(result.message).fadeIn();
-
-                            // 3 saniye sonra mesaj kayboluyor.
-                            setTimeout(function() {
-                                $('#successMessage').fadeOut();
-                            }, 3000);
-                        }
-                    },
-                    error: function() {
-                        alert('Bir hata oluştu.');
-                    }
-                });
-            });
-        });
-    </script>
 </body>
-
 </html>

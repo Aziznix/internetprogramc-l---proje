@@ -20,6 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (mysqli_num_rows($sonuc) > 0) {
             $row = mysqli_fetch_assoc($sonuc);
             $_SESSION["yetki"] = $row["yetki"];
+            $_SESSION["id"] = $row["id"];
+            var_dump($row); 
             // Şifreyi düz metin olarak karşılaştır (hashing kullanılmıyor)
             if ($sifre == $row["parola"]) {
           

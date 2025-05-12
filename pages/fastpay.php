@@ -107,21 +107,21 @@ else{
 <body>
 <nav>
     <div class="logo">
-        <a href="index.php"><img src="../images/logo.png" alt="Logo" /></a>
+        <a href="../index.php"><img src="../images/logo.png" alt="Logo" /></a>
     </div>
     <div class="menu">
         <ul>
             <?php if (isset($_SESSION['yetki']) && $_SESSION['yetki'] == 1): ?>
-                <li><a href="pages/admin.php">Admin Panel</a></li>
+                <li><a href="admin.php">Admin Panel</a></li>
             <?php endif; ?>
-                <li><a href="index.php">Otoparklar</a></li>
-                <li><a href="pages/fastpay.php">Hızlı Ödeme</a></li>
+                <li><a href="../index.php">Otoparklar</a></li>
+                <li><a href="fastpay.php">Hızlı Ödeme</a></li>
             <?php if (isset($_SESSION['kullanici_adi'])): ?>
-                <li><a href="pages/paymaount.php">Rezervasyon</a></li>
-                <li><a href="pages/profil.php">Profil</a></li>
-                <li><a href="pages/exit.php">Çıkış Yap</a></li>
+                <li><a href="paymaount.php">Rezervasyon</a></li>
+                <li><a href="profil.php">Profil</a></li>
+                <li><a href="exit.php">Çıkış Yap</a></li>
             <?php else: ?>
-                <li><a href="pages/login.php">Giriş Yap</a></li>
+                <li><a href="login.php">Giriş Yap</a></li>
             <?php endif; ?>
      
 
@@ -165,8 +165,8 @@ else{
                     <tbody>
                         <?php if($toplam != 0){?>
                     <tr>
-                        <td><?php echo $veriler['user']['nameandsurname']; ?></td>
-                        <td><?php echo $veriler['user']['nameandsurname']; ?></td>
+                        <td><?php echo $veriler['user']['name']; ?></td>
+                        <td><?php echo $veriler['user']['surname']; ?></td>
                         <td><?php echo $veriler['park']['arac_plaka']; ?></td>
                         <td><?php echo $veriler['park']['saat']; ?></td>
                         <td><?php echo $time; ?></td>

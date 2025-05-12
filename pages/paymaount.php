@@ -2,11 +2,10 @@
 include('config.php');
 session_start();
 
-
+// AJAX isteği: otopark yerlerini getir
 if (isset($_POST['otopark_adi'])) {
     $otopark_adi = $_POST['otopark_adi'];
 
-  
     $sql = "SELECT otopark_id FROM otopark WHERE `otopark-adi` = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $otopark_adi);
@@ -15,8 +14,8 @@ if (isset($_POST['otopark_adi'])) {
     $otopark = $result->fetch_assoc();
 
     if ($otopark) {
-        
         $otopark_id = $otopark['otopark_id'];
+
         $yer_sql = "SELECT * FROM park_yerleri WHERE otopark_id = ?";
         $stmt = $conn->prepare($yer_sql);
         $stmt->bind_param("i", $otopark_id);
@@ -27,11 +26,15 @@ if (isset($_POST['otopark_adi'])) {
         while ($row = $result->fetch_assoc()) {
             $yerler[] = $row;
         }
-        echo json_encode($yerler);
+
+        echo json_encode([
+            "yerler" => $yerler,
+            "otopark_id" => $otopark_id
+        ]);
     } else {
-        echo json_encode([]);
+        echo json_encode(["yerler" => [], "otopark_id" => null]);
     }
-    exit; 
+    exit;
 }
 ?>
 
@@ -39,15 +42,15 @@ if (isset($_POST['otopark_adi'])) {
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gelişim Otopark</title>
     <link rel="stylesheet" href="../assest/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
 <body>
+
 <nav>
     <div class="logo">
-        <a href="index.php"><img src="../images/logo.png" alt="Logo" /></a>
+        <a href="../index.php"><img src="../images/logo.png" alt="Logo" /></a>
     </div>
     <div class="menu">
         <ul>
@@ -64,6 +67,37 @@ if (isset($_POST['otopark_adi'])) {
     </div>
 </nav>
 
+<?php 
+if (isset($_SESSION['id'])) {
+    $id = $_SESSION['id'];
+
+    // Kullanıcı bilgilerini al
+    $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $resultpage = $stmt->get_result();
+    $sorgu = $resultpage->fetch_assoc();
+
+    if (isset($sorgu['name'])) {
+
+        // Aktif rezervasyon var mı kontrolü
+        $stmt = $conn->prepare("SELECT * FROM park_yerleri WHERE user_id = ? AND durum = 'rezerve'");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $rezervasyonSonuc = $stmt->get_result();
+        $aktifRezervasyonVar = $rezervasyonSonuc->num_rows > 0;
+
+        if ($aktifRezervasyonVar) {
+            echo "<div class='rezervasyon'>
+                    <h2>Rezervasyon</h2>
+                    <div style='margin:30px; padding:20px; background-color:#ffcccc; border:1px solid #cc0000; border-radius:10px; width:400px;'>
+                        <h3>Zaten aktif bir rezervasyonunuz bulunmaktadır.</h3>
+                        <p>Yeni rezervasyon yapabilmek için önce mevcut rezervasyonunuzu iptal etmelisiniz.</p>
+                    </div>
+                  </div>";
+        } else {
+?>
+
 <div class="rezervasyon">
     <div style="margin-bottom:50px;">
         <h2>Rezervasyon</h2>
@@ -71,12 +105,10 @@ if (isset($_POST['otopark_adi'])) {
     </div>
     <div>
         <form method="POST" action="rezerv.php" class="secim" style="justify-items: center; align-items: center;">
-            <select name="otopark" id="otopark" style="border:none; margin-right:100px; margin-bottom:20px; margin-left: 20%">
+            <select name="otopark" id="otopark" style="margin-bottom:20px; margin-left: 20%">
                 <?php 
-                
                 $sql = 'SELECT * FROM otopark';
                 $result = $conn->query($sql);
-
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
                         echo "<option value='" . $row['otopark-adi'] . "'>" . $row['otopark-adi'] . "</option>";
@@ -87,52 +119,72 @@ if (isset($_POST['otopark_adi'])) {
                 ?>
             </select>
 
-            <select name="yer" id="yer" style="border:none; margin-right:100px; margin-bottom:20px; margin-left: 20%">
+            <select name="yer" id="yer" style="margin-bottom:20px; margin-left: 20%">
                 <option value="">Önce otopark seçin</option>
             </select>
-            <input type="text" name="plaka" placeholder="Plaka Giriniz" required 
-           style=" margin-bottom: 20px; margin-left: 20%; border: none; border-radius: 5px;"><br>
 
-    <input type="time" name="saat" required 
-           style=" margin-bottom: 50px; margin-left: 20%; border: none; border-radius: 5px;"><br>
+            <select name="plaka" style="margin-bottom:20px; margin-left: 20%">
+               <?php 
+                $stmt = $conn->prepare("SELECT numberplate FROM users WHERE id = ?");
+                $stmt->bind_param("i", $_SESSION['id']);
+                $stmt->execute();
+                $result2 = $stmt->get_result();
 
+                if ($row = $result2->fetch_assoc()) {
+                    $numberplates = explode(',', $row['numberplate']);
+                    foreach ($numberplates as $plaka) {
+                        $plaka = trim($plaka);
+                        if (!empty($plaka)) {
+                            echo "<option value='" . htmlspecialchars($plaka) . "'>" . htmlspecialchars($plaka) . "</option>";
+                        }
+                    }
+                }
+                ?>
+            </select>
 
-            <button type="submit" class="btn btn-primary" style="padding:20px; background-color: lightskyblue; border:none; border-radius:10px; margin-left:30%">Rezervasyon Yap</button>
+            <input type="hidden" name="otopark_id" id="otopark_id">
+
+            <button type="submit" style="padding:20px; background-color: lightskyblue; border:none; border-radius:10px; margin-left:30%">Rezervasyon Yap</button>
         </form>
     </div>
 </div>
 
 <script>
-
-document.getElementById('otopark').addEventListener('change', function() {
+document.getElementById('otopark').addEventListener('change', function () {
     var otoparkAdi = this.value;
-    
+
     if (otoparkAdi) {
-       
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '', true);  
+        xhr.open('POST', '', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function() {
+        xhr.onreadystatechange = function () {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                var yerler = JSON.parse(xhr.responseText);
-                
-               
+                var data = JSON.parse(xhr.responseText);
+
                 var yerSelect = document.getElementById('yer');
                 yerSelect.innerHTML = '<option value="">Yer seçin</option>';
-                
-                // Yeni seçenekleri ekle
-                yerler.forEach(function(yer) {
+
+                data.yerler.forEach(function (yer) {
                     var option = document.createElement('option');
-                    option.value =yer.park_id;  // park_yerleri tablosundaki 'pozisyon' ve 'park_id' alanlarını kullanıyoruz
-                    option.textContent =yer.park_id;  // park_yerleri tablosundaki 'pozisyon' ve 'park_id' alanlarını kullanıyoruz
+                    option.value = yer.park_id;
+                    option.textContent = yer.park_id;
                     yerSelect.appendChild(option);
                 });
+
+                document.getElementById('otopark_id').value = data.otopark_id;
             }
         };
-        xhr.send('otopark_adi=' + otoparkAdi);
+        xhr.send('otopark_adi=' + encodeURIComponent(otoparkAdi));
     }
 });
 </script>
 
+<?php 
+        } // if aktif rezervasyon yoksa
+    } // if name var
+} else {
+    echo "<h3>Rezervasyon yapabilmek için giriş yapmalısınız.</h3>";
+}
+?>
 </body>
 </html>
