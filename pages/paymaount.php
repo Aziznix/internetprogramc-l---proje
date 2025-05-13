@@ -2,7 +2,7 @@
 include('config.php');
 session_start();
 
-// AJAX isteği: otopark yerlerini getir
+// AJAX isteği: Otopark yerlerini getir
 if (isset($_POST['otopark_adi'])) {
     $otopark_adi = $_POST['otopark_adi'];
 
@@ -16,7 +16,7 @@ if (isset($_POST['otopark_adi'])) {
     if ($otopark) {
         $otopark_id = $otopark['otopark_id'];
 
-        $yer_sql = "SELECT * FROM park_yerleri WHERE otopark_id = ?";
+        $yer_sql = "SELECT * FROM park_yerleri WHERE otopark_id = ? AND durum = 'bos'";
         $stmt = $conn->prepare($yer_sql);
         $stmt->bind_param("i", $otopark_id);
         $stmt->execute();
@@ -71,23 +71,14 @@ if (isset($_POST['otopark_adi'])) {
 if (isset($_SESSION['id'])) {
     $id = $_SESSION['id'];
 
-    // Kullanıcı bilgilerini al
-    $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+    // Kullanıcının rezerve veya dolu kaydı var mı?
+    $stmt = $conn->prepare("SELECT durum FROM park_yerleri WHERE user_id = ? AND (durum = 'rezerve' OR durum = 'dolu')");
     $stmt->bind_param("i", $id);
     $stmt->execute();
-    $resultpage = $stmt->get_result();
-    $sorgu = $resultpage->fetch_assoc();
+    $result = $stmt->get_result();
 
-    if (isset($sorgu['name'])) {
-
-        // Aktif rezervasyon var mı kontrolü
-        $stmt = $conn->prepare("SELECT * FROM park_yerleri WHERE user_id = ? AND durum = 'rezerve'");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $rezervasyonSonuc = $stmt->get_result();
-        $aktifRezervasyonVar = $rezervasyonSonuc->num_rows > 0;
-
-        if ($aktifRezervasyonVar) {
+    if ($row = $result->fetch_assoc()) {
+        if ($row['durum'] == 'rezerve') {
             echo "<div class='rezervasyon'>
                     <h2>Rezervasyon</h2>
                     <div style='margin:30px; padding:20px; background-color:#ffcccc; border:1px solid #cc0000; border-radius:10px; width:400px;'>
@@ -95,7 +86,17 @@ if (isset($_SESSION['id'])) {
                         <p>Yeni rezervasyon yapabilmek için önce mevcut rezervasyonunuzu iptal etmelisiniz.</p>
                     </div>
                   </div>";
-        } else {
+        } elseif ($row['durum'] == 'dolu') {
+            echo "<div class='rezervasyon'>
+                    <h2>Park Halindesiniz</h2>
+                    <div style='margin:30px; padding:20px; background-color:#ffcccc; border:1px solid #cc0000; border-radius:10px; width:400px;'>
+                        <h3>Zaten aktif olarak park halindesiniz.</h3>
+                        <p>Yeni rezervasyon yapabilmek için önce ödeme yapıp park yerinden ayrılmanız gerekmektedir.</p>
+                    </div>
+                  </div>";
+        }
+    } else {
+        // Rezerve veya dolu kaydı yoksa formu göster
 ?>
 
 <div class="rezervasyon">
@@ -180,11 +181,12 @@ document.getElementById('otopark').addEventListener('change', function () {
 </script>
 
 <?php 
-        } // if aktif rezervasyon yoksa
-    } // if name var
-} else {
+        } // aktif durum yoksa form göster
+    }
+else {
     echo "<h3>Rezervasyon yapabilmek için giriş yapmalısınız.</h3>";
 }
 ?>
+
 </body>
 </html>

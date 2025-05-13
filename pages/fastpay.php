@@ -1,7 +1,7 @@
 <?php 
 include('config.php');
 session_start();
-
+date_default_timezone_set("Europe/Istanbul");
 $time = date("H:i:s");
 $day = date("Y-m-d");
 $veriler = [];

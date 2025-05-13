@@ -23,7 +23,9 @@ if (!empty($eskiplaka)) {
 
 $stmt = $conn->prepare("UPDATE users SET numberplate = ? WHERE id = ?");
 $stmt->bind_param("si", $yeniplaka, $kullanici_id);
-$stmt->execute();
+if($stmt->execute()){
+    echo "işlem başarılı";
+};
 $stmt->close();
 header("Location: ../index.php"); // Başarılı giriş sonrası ana sayfaya yönlendir
 exit();

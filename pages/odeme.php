@@ -1,7 +1,7 @@
 <?php 
 include('config.php');
 header("Content-Type: application/json"); // fetch() için şart
-
+date_default_timezone_set("Europe/Istanbul");
 $input = file_get_contents("php://input");
 $data = json_decode($input, true);
 
