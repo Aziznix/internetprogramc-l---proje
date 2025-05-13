@@ -107,7 +107,7 @@ $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
     <!-- Sol Panel -->
     <div class="left-panel">
         <a href="#" id="user-info">Kullanıcı Bilgileri</a>
-        <a href="#" id="otopark-pay">Otopark Pay</a>
+        <a href="#" id="otopark-pay">Otopark Ödeme Geçmişi</a>
     </div>
 
     <!-- Sağ Panel -->
@@ -161,7 +161,6 @@ $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
                 <th>Park Yeri</th>
                 <th>Arac Plaka</th>
                 <th>Süre</th>
-                <th>Saat</th>
                 <th>Tarih</th>
             </tr>`;
         
@@ -170,11 +169,10 @@ $pay_data = mysqli_fetch_all($result_pay, MYSQLI_ASSOC);
             tableContent += `<tr>
                 <td>${pay.fatura_id}</td>
                 <td>${pay.musteri_id}</td>
-                <td>${pay.tutar}</td>
+                <td>${pay.tutar}₺</td>
                 <td>${pay.park_yeri}</td>
                 <td>${pay.arac_plaka}</td>
-                <td>${pay.sure}</td>
-                <td>${pay.saat}</td>
+                <td>${parseFloat(pay.sure).toFixed(2)}</td>
                 <td>${pay.tarih}</td>
             </tr>`;
         });

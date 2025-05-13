@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['plaka'])) {
             $response['user'] = $user_data;
         }
 
-        // sabit ücret
+        // otopark ücreti sabit
         $response['ucret'] = 100;
     }
 
